@@ -1,6 +1,6 @@
 const router = require('express').Router();
 let UserName = require('../models/username.model');
-
+const jwt = require('jsonwebtoken')
 const { hash, compare } = require('bcryptjs');
 
 
@@ -35,9 +35,9 @@ router.route('/login').post((req,res)=>{
     .then( async user=>{
         // res.json(user.username+user.password)
         const valid = await compare(req.body.password,user.password) 
-       valid? res.status(200).json('Login Successful'):res.status(401).json("invalid login or password")
+       valid? res.status(200).json(user):res.status(401).json("invalid login or password")
     })
-    .catch(err=>res.status(400).json('Invalid user ' + err))
+    .catch(()=>res.status(400).json('Invalid user ' ))
 })
 
 router.route('/add').post(async (req, res) => {

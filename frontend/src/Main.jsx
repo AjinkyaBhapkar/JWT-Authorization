@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import axios from 'axios'
 import { useEffect } from 'react'
+import { useLocation,useNavigate } from 'react-router-dom'
 
 const Main = () => {
+    const userData=useLocation().state
+    const navigate=useNavigate()
     const [data, setData] = useState([])
     const [edit, setEdit] = useState('none')
     const [nu,setNU]=useState('')
@@ -37,9 +40,14 @@ const Main = () => {
         .then(()=>{console.log('updated successfully') ; setk(prev=>prev+=1);setEdit('none')})
         .catch(err=> console.log('something went wrong'+err))
     }
+    const logout=()=>{
+        navigate('/login')
+        window.location.reload()
+    }
     return (
         <div>
-            <h2>Jwt Authorization</h2>
+            <h2>Jwt Authorization </h2>
+            <h4>Logged in as : {userData.username} <button onClick={logout}>Logout</button></h4>
 
             {data.map(d => (
 
