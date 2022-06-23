@@ -13,20 +13,24 @@ const Login = () => {
         console.log(form)
     }
     const success=(res)=>{
-      navigate('/',{state:res.data})
+      navigate('/home',{state:res.data,replace:true})
       console.log(res)
 
     }
-    const submit=()=>{
+    const submit=(e)=>{
+      e.preventDefault();
         axios.post('http://localhost:5000/userName/login',credentials)
         .then(res=> (res.status==200)?  success(res) :'')
         .catch(res=> alert(res.response.data) )
     }
   return (
     <div>
+      <form className='form' >
+
       <input type="text" placeholder='Username' id='username' onChange={e=>handel(e)}/>
       <input type="password" placeholder='Password' id='password' onChange={e=>handel(e)}/>
-      <input type="submit" onClick={submit} />
+      <input type="submit" onClick={e=>submit(e)} />
+      </form>
     </div>
   )
 }
