@@ -5,6 +5,8 @@ const { hash, compare } = require('bcryptjs');
 const jwtDecode = require('jwt-decode')
 require('dotenv').config();
 
+let refToken=[]
+
 router.route('/').get((req, res) => {
     UserName.find()
         .then(username => res.json(username))
@@ -20,35 +22,66 @@ router.route('/deleteall').post((req, res) => {
         .catch(err => res.status(400).json('Error: ' + err));
 });
 
-const generateToken = async (user, res) => {
-    let accessToken = await jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET_KEY)
-    user = {
-        ...user._doc,
-        AT: accessToken
+const generateAccessToken = (user) => {
+    return jwt.sign({_id:user._id} , process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '10s'})}
+    
+const generateRefreshToken =  (user) => {
+   return jwt.sign( {_id:user._id} , process.env.REFRESH_TOKEN_SECRET_KEY)
+
+}
+const valid =(user,res,prevRT)=>{
+    let AT=generateAccessToken(user);
+    let RT=generateRefreshToken(user);
+    let userd={
+        ...user,
+        AT,
+        RT
     }
+    refToken=refToken.filter(token=> token !==prevRT)
+    refToken.push(RT)
+    res.status(200).json(userd)
 
-
-    res.status(200).json(user)
 }
 
 router.route('/login').post((req, res) => {
     UserName.findOne({ username: req.body.username })
         .then(async user => {
-            // res.json(user.username+user.password)
-            const valid = await compare(req.body.password, user.password)
-            valid ? generateToken(user, res) : res.status(401).json("invalid login or password")
+            
+            const isValid = await compare(req.body.password, user.password)
+           
+            isValid ? valid(user,res) : res.status(401).json("invalid login or password")
 
         })
         .catch(() => res.status(400).json('Invalid USer '))
 })
 
+
+router.route('/refresh').post((req, res) => {
+    if(req.body.RT==undefined ){res.status(400).json('Not authorized')}
+    (refToken.includes(req.body.RT))? '':  res.status(401).json('invalid authorization')
+
+    jwt.verify(req.body.RT,process.env.REFRESH_TOKEN_SECRET_KEY,(err,user)=>{
+        if (err){
+            res.status(403).json('Authorization failed')
+
+        }
+
+        valid(user,res,req.body.RT)
+    })
+})
+
+
+
+
 router.route('/update/:id').post((req, res) => {
     jwt.verify(req.headers.authorization, process.env.ACCESS_TOKEN_SECRET_KEY, (err, user) => {
         if (err) {
-            return res.status(403).json("Token is not valid!");
+            return res.status(403).json("No match");
         }
         // res.status(200).json(user.user._id)
-        if (user.user._id == req.params.id) {
+
+        if (user._id == req.params.id) {
+            // res.status(200).json('entered block')
             UserName.updateOne(
                 { _id: req.params.id },
                 {
@@ -59,10 +92,10 @@ router.route('/update/:id').post((req, res) => {
             )
                 .then(() => {
                     UserName.find({ _id: req.params.id })
-                        .then(user => { res.status(200).json( user) })
+                        .then(user =>  res.status(200).json(user) )
                 })
                 .catch((err) => res.status(400).json('Error' + err));
-            // res.status(200).json('Authorized')
+            
         } else {
             res.status(403).json("Not authorized!")
         }

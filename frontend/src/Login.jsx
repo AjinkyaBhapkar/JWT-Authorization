@@ -10,11 +10,11 @@ const Login = () => {
         let form={...credentials}
         form[e.target.id]=e.target.value
         setCred(form)
-        console.log(form)
+        // console.log(form)
     }
     const success=(res)=>{
       navigate('/home',{state:res.data,replace:true})
-      console.log(res)
+      // console.log(res)
 
     }
     const submit=(e)=>{
@@ -29,7 +29,7 @@ const Login = () => {
 
       <input type="text" placeholder='Username' id='username' onChange={e=>handel(e)}/>
       <input type="password" placeholder='Password' id='password' onChange={e=>handel(e)}/>
-      <input type="submit" onClick={e=>submit(e)} />
+      <input type="submit" value='Login' onClick={e=>submit(e)} />
       </form>
     </div>
   )
