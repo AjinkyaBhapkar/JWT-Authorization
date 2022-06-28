@@ -23,7 +23,7 @@ router.route('/deleteall').post((req, res) => {
 });
 
 const generateAccessToken = (user) => {
-    return jwt.sign({_id:user._id} , process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '1m'})}
+    return jwt.sign({_id:user._id} , process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '15m'})}
     
 const generateRefreshToken =  (user) => {
    return jwt.sign( {_id:user._id} , process.env.REFRESH_TOKEN_SECRET_KEY)
