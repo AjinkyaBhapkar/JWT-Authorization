@@ -71,8 +71,8 @@ const Main = () => {
             if (decoded.exp * 1000 < currentTime.getTime()) {
                 console.log('expired')
                 refreshTokens(userData.RT)
+                config.headers = { authorization: userData.AT }
             }
-            config.headers = { authorization: userData.AT }
 
             return (config)
         },
