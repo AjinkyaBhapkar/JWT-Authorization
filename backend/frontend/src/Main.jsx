@@ -1,13 +1,15 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+
+import axiosInstance from './config'
 import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import jwtDecode from 'jwt-decode'
 
 const Main = () => {
+    // const url="http://localhost:5000"
     const [userData, setUserData] = useState(useLocation().state)
-    console.log(jwtDecode(userData.AT))
-    // console.log(userData)
+    // console.log(jwtDecode(userData.AT))
+    
     const navigate = useNavigate()
 
     const [data, setData] = useState([])
@@ -15,9 +17,10 @@ const Main = () => {
     const [nu, setNU] = useState('')
     const [id, setid] = useState('')
     const [k, setk] = useState(0)
-    const [profile, setProfile] = useState(userData.username || '')
+    const [profile, setProfile] = useState(userData._doc.username )
+    console.log(userData)
     const fetch = async () => {
-        await axios.get('http://localhost:5000/userName/')
+        await axiosInstance.get(`/userName`)
             .then(res => {
                 setData(res.data);
                 // console.log(res.data);
@@ -37,7 +40,7 @@ const Main = () => {
     }
 
     const refreshTokens=async(RT)=>{
-       await axios.post('http://localhost:5000/userName/refresh',{RT})
+       await axiosInstance.post(`/userName/refresh`,{RT})
         .then((res)=>{
             let nud={...userData,
             "AT":res.data.AT,
@@ -49,7 +52,7 @@ const Main = () => {
         .catch(err=>console.log('error'+err))
     }
 
-    const axiosJWT = axios.create()
+    const axiosJWT = axiosInstance.create()
 
     axiosJWT.interceptors.request.use(
         async (config) => {
@@ -70,7 +73,7 @@ const Main = () => {
 
     const submit = (e) => {
         e.preventDefault();
-        axiosJWT.post(`http://localhost:5000/userName/update/${id}`, {
+        axiosJWT.post(`/userName/update/${id}`, {
             username: nu,
         }, {
             headers: { authorization: userData.AT }
@@ -85,11 +88,11 @@ const Main = () => {
             .catch(err => {
                 // console.log(err);
                 setEdit('none');
-                alert('Something went wrong')
+                alert(err)
             })
     }
     const logout = () => {
-        axios.post(`http://localhost:5000/userName/logout`)
+        axiosInstance.post(`/userName/logout`)
             .then(() => { })
         navigate('/', { replace: true })
         window.location.reload()
@@ -100,14 +103,16 @@ const Main = () => {
         <div className='main'>
             <h2>Jwt Authorization </h2>
             <h4>Logged in as : {profile} <button onClick={logout}>Logout</button></h4>
-
-            <form style={{ display: edit }}>
+        <div className='form-container'>
+             <form style={{ display: edit }}>
                 <label htmlFor="username">Enter new Username</label>
                 <input type="text" value={nu} id='username'
                     onChange={e => handle(e)} /><br />
                 <input type="submit" onClick={e => submit(e)} />
                 <button onClick={(e) => { setEdit('none'); e.preventDefault() }}>Cancel</button>
             </form>
+        </div>
+           
             <div className='users'>
                 {data.map(d => (
 

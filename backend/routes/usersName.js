@@ -7,7 +7,7 @@ require('dotenv').config();
 
 let refToken=[]
 
-router.route('/').get((req, res) => {
+router.route('').get((req, res) => {
     UserName.find()
         .then(username => res.json(username))
         .catch(err => res.status(400).json('Error' + err));

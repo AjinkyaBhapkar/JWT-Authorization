@@ -1,9 +1,10 @@
-import axios from 'axios'
+import axiosInsatnce from './config'
 import React from 'react'
 import { useState } from 'react'
 import {useNavigate} from 'react-router-dom'
 
 const Login = () => {
+  // const url="http://localhost:5000"
   const navigate =useNavigate()
     const[credentials,setCred]=useState({username:'',password:''})
     const handel=e=>{
@@ -19,8 +20,8 @@ const Login = () => {
     }
     const submit=(e)=>{
       e.preventDefault();
-        axios.post('http://localhost:5000/userName/login',credentials)
-        .then(res=> (res.status==200)?  success(res) :'')
+        axiosInsatnce.post(`/userName/login`,credentials)
+        .then(res=> (res.status===200)?  success(res) :'')
         .catch(res=> alert(res.response.data) )
     }
   return (
