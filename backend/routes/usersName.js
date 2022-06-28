@@ -23,7 +23,7 @@ router.route('/deleteall').post((req, res) => {
 });
 
 const generateAccessToken = (user) => {
-    return jwt.sign({_id:user._id} , process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '10s'})}
+    return jwt.sign({_id:user._id} , process.env.ACCESS_TOKEN_SECRET_KEY, {expiresIn: '1m'})}
     
 const generateRefreshToken =  (user) => {
    return jwt.sign( {_id:user._id} , process.env.REFRESH_TOKEN_SECRET_KEY)
@@ -54,7 +54,10 @@ router.route('/login').post((req, res) => {
         })
         .catch(() => res.status(400).json('Invalid USer '))
 })
-
+router.route('/user/:id').get((req, res) => {
+    UserName.find( {_id: req.params.id} )
+        .then( user => {res.status(200).json(user)})
+        .catch(err=>res.status(400).json(err))})
 
 router.route('/refresh').post((req, res) => {
     if(req.body.RT==undefined ){res.status(400).json('Not authorized')}
